@@ -1,14 +1,18 @@
 """
 Reinforcement learning maze example.
 
-Red rectangle:          explorer.
-Black rectangles:       hells       [reward = -1].
-Yellow bin circle:      paradise    [reward = +1].
-All other states:       ground      [reward = 0].
+Red rectangle: lane player.
+Yellow circle: merge palyer.
 
-This script is the environment part of this example. The RL is in RL_brain.py.
+Accelarate: [reward = -1].
+Decelarate: [reward = -1].
+Maintain: [reward = +1].
 
-View more on my tutorial page: https://morvanzhou.github.io/tutorials/
+Successful merge: [reward = +1000].
+Collision: [reward = -10000].
+
+This script is the environment part. The RL part is in RL_brain.py.
+
 """
 
 
@@ -23,7 +27,7 @@ else:
     import tkinter as tk
 
 
-UNIT = 40   # pixels
+UNIT = 80   # pixels
 LANE_H = 7  # grid height
 LANE_W = 1  # grid width
 MERGE_H = 1  # grid height
@@ -36,7 +40,7 @@ class Maze(tk.Tk, object):
         self.action_space = ['u', 'd', 'l', 'r']
         self.n_actions = len(self.action_space)
         self.title('maze')
-        self.geometry('{0}x{1}'.format(LANE_H * UNIT, MERGE_W * UNIT))
+        self.geometry('{0}x{1}'.format(MERGE_W * UNIT, LANE_H * UNIT))
         self._build_maze()
 
     def _build_maze(self):
@@ -53,26 +57,26 @@ class Maze(tk.Tk, object):
             self.canvas.create_line(x0, y0, x1, y1)
 
 	for c in range(0, MERGE_W * UNIT, UNIT):
-            x0, y0, x1, y1 = c, 0 + 120, c, MERGE_H * UNIT + 120
+            x0, y0, x1, y1 = c, 0 + 240, c, MERGE_H * UNIT + 240
             self.canvas.create_line(x0, y0, x1, y1)
         for r in range(0, (MERGE_H + 1) * UNIT, UNIT):
-            x0, y0, x1, y1 = 0, r + 120, MERGE_W * UNIT, r + 120
+            x0, y0, x1, y1 = 0, r + 240, MERGE_W * UNIT, r + 240
             self.canvas.create_line(x0, y0, x1, y1)
 
         # create origin
-        origin = np.array([20, 20])
+        origin = np.array([40, 40])
 
         # create oval
         oval_center = origin + UNIT * 3
         self.oval = self.canvas.create_oval(
-            oval_center[0] - 15, oval_center[1] - 15,
-            oval_center[0] + 15, oval_center[1] + 15,
+            oval_center[0] - 30, oval_center[1] - 30,
+            oval_center[0] + 30, oval_center[1] + 30,
             fill='yellow')
 
         # create red rect
         self.rect = self.canvas.create_rectangle(
-            origin[0] - 15, origin[1] + 225,
-            origin[0] + 15, origin[1] + 255,
+            origin[0] - 30, origin[1] + 450,
+            origin[0] + 30, origin[1] + 510,
             fill='red')
 
         # pack all
