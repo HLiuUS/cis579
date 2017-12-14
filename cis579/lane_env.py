@@ -34,16 +34,16 @@ MERGE_H = 1  # grid height
 MERGE_W = 4  # grid width
 
 
-class Maze(tk.Tk, object):
+class Lane(tk.Tk, object):
     def __init__(self):
-        super(Maze, self).__init__()
+        super(Lane, self).__init__()
         self.action_space = ['u', 'd', 'l', 'r']
         self.n_actions = len(self.action_space)
-        self.title('maze')
+        self.title('Lane')
         self.geometry('{0}x{1}'.format(MERGE_W * UNIT, LANE_H * UNIT))
-        self._build_maze()
+        self._build_lane()
 
-    def _build_maze(self):
+    def _build_lane(self):
         self.canvas = tk.Canvas(self, bg='white',
                            height=LANE_H * UNIT,
                            width=MERGE_W * UNIT)
@@ -84,5 +84,5 @@ class Maze(tk.Tk, object):
 
 
 if __name__ == '__main__':
-    env = Maze()
+    env = Lane()
     env.mainloop()
