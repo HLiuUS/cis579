@@ -34,21 +34,23 @@ def build_q_table(states, actions):
     return q_table
 
 
-def choose_action(state, q_table_1, q_table_2):
+def choose_action(state, q_table_1, q_table_2, eta_1, eta_2):
     # This is how to choose an action
     if (np.random.uniform() > EPSILON) or ((q_table_1[state].all().all() == 0) and (q_table_2[state].all().all()  == 0)):  # act non-greedy or state-action have no value
         action_1 = np.random.choice(ACTIONS)
         action_2 = np.random.choice(ACTIONS)
     else:
         # act greedy
-        game = nash.Game(q_table_1[state], q_table_2[state])
-        eqs = game.support_enumeration() # solve the Nash equilibrium with 'support enumeration' algorithm by Porter-Nudelman-Shoham
-        eq = list(eqs)[0] # when multiple Nash equilibria is available, choose the first one
-        strategy_1 = eq[0].tolist() # strategy of agent 1
-        strategy_2 = eq[1].tolist() # strategy of agent 2
-        action_1 = ACTIONS[strategy_1.index(max(strategy_1))]
-        action_2 = ACTIONS[strategy_2.index(max(strategy_2))]
-        #print action_1, action_2
+        mu_1 = {k: v / sum(eta_1.values()) for k, v in eta_1.iteritems()}
+        mu_2 = {k: v / sum(eta_2.values()) for k, v in eta_2.iteritems()}
+        
+        ficitious_action_2 = max(mu_1, key=mu_1.get)
+        ficitious_action_1 = max(mu_2, key=mu_2.get)
+        
+        action_1 = q_table_1[state][ficitious_action_2].idxmax()
+        action_2 = q_table_2[state][ficitious_action_1].idxmax()
+    #print eta_1, eta_2
+    #print action_1, action_2
     return action_1, action_2
 
 def get_env_feedback(S, action_1, action_2):
@@ -99,11 +101,17 @@ def rl():
     for episode in range(MAX_EPISODES):
         step_counter = 0
         S = (1, 4) # initial state, agent1 in location 1 and agent2 in location4
+        eta_1 = {'decelerate':1, 'maintain':1, 'accelerate':1} #history of actions of agent2
+        eta_2 = {'decelerate':1, 'maintain':1, 'accelerate':1} #history of actions of agent1
+          
         is_terminated = False
 
         while not is_terminated:
 
-            action_1, action_2 = choose_action(S, q_table_1, q_table_2)
+            action_1, action_2 = choose_action(S, q_table_1, q_table_2, eta_1, eta_2)
+            eta_1[action_2] += 1 
+            eta_2[action_1] += 1 
+            
             S_, R1, R2 = get_env_feedback(S, action_1, action_2)  # take action & get next state and reward
             
             q_predict_1 = q_table_1[S].loc[action_1, action_2]
