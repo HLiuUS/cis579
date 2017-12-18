@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import nash
 import time
+from lane_env import Lane
 
 np.random.seed(0)  # reproducible
 
@@ -98,9 +99,11 @@ def rl():
     q_table_1 = build_q_table(STATES, ACTIONS)
     q_table_2 = build_q_table(STATES, ACTIONS)
 
-    q_table_start_position_1 = []
+    #q_table_start_position_1 = []
     
     for episode in range(MAX_EPISODES):
+        observation = env.reset()
+        
         step_counter = 0
         S = (1, 4) # initial state, agent1 in location 1 and agent2 in location4
         eta_1 = {'decelerate':1, 'maintain':1, 'accelerate':1} #history of actions of agent2
@@ -109,8 +112,13 @@ def rl():
         is_terminated = False
 
         while not is_terminated:
+            
+            env.render()
 
             action_1, action_2 = choose_action(S, q_table_1, q_table_2, eta_1, eta_2)
+            
+            env.step(action_1, action_2)
+            
             eta_1[action_2] += 1 
             eta_2[action_1] += 1 
             
@@ -137,14 +145,15 @@ def rl():
             S = S_  # move to next state
 
             step_counter += 1
-        q_table_start_position_1.append(q_table_1[(1, 4)])
+        #q_table_start_position_1.append(q_table_1[(1, 4)])
     #print 'q_predict_1: %d' %(q_predict_1), 'q_predict_2: %d' %(q_predict_2)
     #print 'q_target_1: %d' %(q_target_1), 'q_target_2: %d' %(q_target_2)
     #print 'episode: %d' %(episode)
-    return q_table_1, q_table_2, q_table_start_position_1
-    #return q_table_1, q_table_2
+    #return q_table_1, q_table_2, q_table_start_position_1
+    return q_table_1, q_table_2
 
 if __name__ == "__main__":
-    q_table_1, q_table_2, q_table_start_position_1 = rl()
-    #q_table_1, q_table_2 = rl()
+    env = Lane()
+    #q_table_1, q_table_2, q_table_start_position_1 = rl()
+    q_table_1, q_table_2 = rl()
     #print q_table_1, q_table_2
