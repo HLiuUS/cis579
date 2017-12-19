@@ -8,7 +8,6 @@ Created on Tue Dec 12 22:36:50 2017
 import numpy as np
 import pandas as pd
 import nash
-import time
 from lane_env import Lane
 
 np.random.seed(0)  # reproducible
